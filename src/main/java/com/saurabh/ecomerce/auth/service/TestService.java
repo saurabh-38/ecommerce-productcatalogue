@@ -1,9 +1,9 @@
 package com.saurabh.ecomerce.auth.service;
 
-import com.saurabh.ecomerce.auth.product.product;
-import org.springframework.http.MediaType;
+import com.saurabh.ecomerce.auth.product.Product;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -40,37 +40,42 @@ public class TestService {
 //        return response;
 //    }
 
-    public Mono<product> createProduct(product product) {
+    public Mono<Product> createProduct(Product product) {
         return webClient.post()
                 .uri("/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(product))
                 .retrieve()
-                .bodyToMono(product.class);
+                .bodyToMono(Product.class);
     }
 
 
+    public ResponseEntity<String> updateProduct(long id, Product product) {
 
-//    public void createProduct() {
-//        String jsonPayload = "{"
-//                + "\"title\": \"New Product\","
-//                + "\"price\": 29.99,"
-//                + "\"description\": \"A description of the new product\","
-//                + "\"image\": \"https://example.com/image.jpg\","
-//                + "\"category\": \"electronics\""
-//                + "}";
-//
-//        Mono<String> response = webClient.post()
-//                .uri("/products")
-//                .header("Content-Type", "application/json")
-//                .bodyValue(jsonPayload)
-//                .retrieve()
-//                .bodyToMono(String.class);
-//
-//        response.doOnNext(result -> System.out.println("Product created successfully: " + result))
-//                .doOnError(error -> System.out.println("Failed to create product: " + error.getMessage()))
-//                .block();
-//    }
+        String apiUrl = "https://fakestoreapi.com/products/" + id;  // Update URL with product ID
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Product> request = new HttpEntity<>(product, headers);
+
+        // Sending PUT request to fake store API
+        ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.PUT, request, String.class);
+        System.out.println("Response" + response);
+        return response;
 
 
+    }
+
+    public ResponseEntity<String> deleteProduct(long id, Product product) {
+
+        String apiUrl = "https://fakestoreapi.com/products/" + id;  // Update URL with product ID
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.DELETE, HttpEntity.EMPTY, String.class);
+        System.out.println("response" + response);
+        return ResponseEntity.ok(response.getBody());
+
+    }
 }

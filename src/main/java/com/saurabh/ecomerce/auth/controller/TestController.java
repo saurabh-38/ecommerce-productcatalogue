@@ -1,12 +1,9 @@
 package com.saurabh.ecomerce.auth.controller;
 
-import com.saurabh.ecomerce.auth.product.product;
+import com.saurabh.ecomerce.auth.product.Product;
 import com.saurabh.ecomerce.auth.service.TestService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,11 +27,23 @@ public class TestController {
 //        System.out.println("sbh.gupta" + response);
 //    }
 
-    @PostMapping("/addProduct")
-    public void addProduct(@RequestBody product product) {
-        System.out.println(product);
+    @PostMapping("/product")
+    public void addProduct(@RequestBody Product product) {
+        System.out.println(product.toString());
          testService.createProduct(product);
     }
+    @PutMapping("/product/{id}")
+    public ResponseEntity<String> updateProduct(@PathVariable long id, @RequestBody Product product) {
+        System.out.println(product.toString());
+        return testService.updateProduct(id,product);
+    }
+
+    @DeleteMapping("/product/{id}")
+    public ResponseEntity<String> deleteProduct(@PathVariable long id, @RequestBody Product product) {
+        return testService.deleteProduct(id,product);
+    }
+
+
 }
 
 
