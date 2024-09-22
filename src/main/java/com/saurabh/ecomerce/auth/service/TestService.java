@@ -50,32 +50,34 @@ public class TestService {
     }
 
 
-    public ResponseEntity<String> updateProduct(long id, Product product) {
+    public Mono<ResponseEntity<String>> updateProduct(long id, Product product) {
+
 
         String apiUrl = "https://fakestoreapi.com/products/" + id;  // Update URL with product ID
 
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<Product> request = new HttpEntity<>(product, headers);
-
-        // Sending PUT request to fake store API
-        ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.PUT, request, String.class);
-        System.out.println("Response" + response);
-        return response;
+        return webClient
+                .put()
+                .uri(apiUrl)
+                .body(Mono.just(product), Product.class)
+                .retrieve()
+                .bodyToMono(String.class)
+                .map(response -> ResponseEntity.ok(response))
+                .onErrorResume(e -> Mono.just(ResponseEntity.status(500).body("Error occurred: " + e.getMessage())));
 
 
     }
 
-    public ResponseEntity<String> deleteProduct(long id, Product product) {
+    public Mono<ResponseEntity<String>> deleteProduct(long id, Product product) {
 
         String apiUrl = "https://fakestoreapi.com/products/" + id;  // Update URL with product ID
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.DELETE, HttpEntity.EMPTY, String.class);
-        System.out.println("response" + response);
-        return ResponseEntity.ok(response.getBody());
+
+        return webClient
+                .delete()
+                .uri(apiUrl)
+                .retrieve()
+                .bodyToMono(String.class)
+                .map(response -> ResponseEntity.ok(response))
+                .onErrorResume(e -> Mono.just(ResponseEntity.status(500).body("Error occurred: " + e.getMessage())));
 
     }
 }

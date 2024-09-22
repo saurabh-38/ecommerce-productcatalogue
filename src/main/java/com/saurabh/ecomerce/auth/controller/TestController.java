@@ -4,6 +4,7 @@ import com.saurabh.ecomerce.auth.product.Product;
 import com.saurabh.ecomerce.auth.service.TestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -33,13 +34,13 @@ public class TestController {
          testService.createProduct(product);
     }
     @PutMapping("/product/{id}")
-    public ResponseEntity<String> updateProduct(@PathVariable long id, @RequestBody Product product) {
+    public Mono<ResponseEntity<String>>  updateProduct(@PathVariable long id, @RequestBody Product product) {
         System.out.println(product.toString());
         return testService.updateProduct(id,product);
     }
 
     @DeleteMapping("/product/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable long id, @RequestBody Product product) {
+    public Mono<ResponseEntity<String>> deleteProduct(@PathVariable long id, @RequestBody Product product) {
         return testService.deleteProduct(id,product);
     }
 
