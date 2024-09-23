@@ -1,44 +1,49 @@
 package com.saurabh.ecomerce.auth.service;
 
-import com.saurabh.ecomerce.auth.product.Product;
+import com.saurabh.ecomerce.auth.models.Product;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import com.saurabh.ecomerce.auth.repository.ProductRepository;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class TestService {
 
-    private WebClient webClient = null;
-
-
-    public TestService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("https://fakestoreapi.com").build();
-    }
+    private final WebClient webClient ;
+    private final ProductRepository productRepository;
 
 
     public List fetchProducts() {
-        return webClient.get()
+        return this.webClient.get()
                 .uri("/products?limit=5")
                 .retrieve()
                 .bodyToMono(List.class)
                 .block(); // Blocks for a response. Remove for asynchronous handling.
     }
-
-//    public String PostRequest(@RequestBody product req) {
-//        String baseUrl = "https://fakestoreapi.com";
-//        String response = WebClient.create(baseUrl).post()
-//                .accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)
-//                .body( Mono.just(req), product.class)
-//                .retrieve()
-//                .bodyToMono(String.class).block();
-//
-//        return response;
-//    }
+    public Product getProductByID(long id) {
+        System.out.println("ProductService.getProductById");
+        System.out.println("id = " + id);
+       Product product = this.productRepository.getProductById(id);
+        
+        if(product != null){
+            return product;
+        }
+        
+        Product productFromApi = webClient
+                .get()
+                .uri("/products/" +id)
+                .retrieve()
+                .bodyToMono(Product.class)
+                .block(); // Blocks for a response. Remove for asynchronous handling.
+        this.saveProduct(productFromApi);
+        return productFromApi;
+    }
 
     public Mono<Product> createProduct(Product product) {
         return webClient.post()
@@ -80,4 +85,10 @@ public class TestService {
                 .onErrorResume(e -> Mono.just(ResponseEntity.status(500).body("Error occurred: " + e.getMessage())));
 
     }
+
+    public void saveProduct(Product product) {
+        productRepository.save(product);
+    }
+
+
 }
