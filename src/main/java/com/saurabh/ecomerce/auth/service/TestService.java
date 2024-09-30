@@ -45,6 +45,7 @@ public class TestService {
         return productFromApi;
     }
 
+
     public Mono<Product> createProduct(Product product) {
         return webClient.post()
                 .uri("/products")
@@ -55,22 +56,31 @@ public class TestService {
     }
 
 
-    public Mono<ResponseEntity<String>> updateProduct(long id, Product product) {
-
-
-        String apiUrl = "https://fakestoreapi.com/products/" + id;  // Update URL with product ID
-
-        return webClient
-                .put()
-                .uri(apiUrl)
-                .body(Mono.just(product), Product.class)
-                .retrieve()
-                .bodyToMono(String.class)
-                .map(response -> ResponseEntity.ok(response))
-                .onErrorResume(e -> Mono.just(ResponseEntity.status(500).body("Error occurred: " + e.getMessage())));
-
+    public ResponseEntity<Product> updateProduct(long id, Product product) {
+        System.out.println("Update product " + id  + " "+ product.toString());
+        Product tempProduct = productRepository.getProductById(id);
+        if(tempProduct!=null) {
+            productRepository.save(tempProduct);
+            return ResponseEntity.ok().body(product);
+        }else {
+            System.out.println("Product does not exist");
+            return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION).build();
+        }
 
     }
+//        String apiUrl = "https://fakestoreapi.com/products/" + id;  // Update URL with product ID
+//
+//        return webClient
+//                .put()
+//                .uri(apiUrl)
+//                .body(Mono.just(product), Product.class)
+//                .retrieve()
+//                .bodyToMono(String.class)
+//                .map(response -> ResponseEntity.ok(response))
+//                .onErrorResume(e -> Mono.just(ResponseEntity.status(500).body("Error occurred: " + e.getMessage())));
+
+
+
 
     public Mono<ResponseEntity<String>> deleteProduct(long id, Product product) {
 
@@ -89,6 +99,17 @@ public class TestService {
     public void saveProduct(Product product) {
         productRepository.save(product);
     }
+//    public ResponseEntity<Product> updateProductById(Long id,Product updateProduct){
+//
+//        Product tempProduct = productRepository.getProductById(id);
+//        if(tempProduct!=null) {
+//            tempProduct = updateProduct;
+//            productRepository.save(tempProduct);
+//            return ResponseEntity.ok()
+//        }else {
+//            System.out.println("Product does not exist");
+//        }
+//    }
 
 
 }

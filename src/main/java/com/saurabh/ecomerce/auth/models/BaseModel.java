@@ -13,7 +13,7 @@ import java.util.Date;
 public class BaseModel {
 
     @Id
-    private  Long id;
+    public   Long id;
     private Date createdAt;
     private Date updatedAt;
     private Date status;

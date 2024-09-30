@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,8 +17,15 @@ public class TestController {
     private final TestService testService;
 
     @GetMapping("/products")
-    public List getProducts() {
-        return testService.fetchProducts();
+    public ResponseEntity<List<Product>> getProducts() {
+
+        List temp=testService.fetchProducts();
+
+        if(temp.size()==0){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }else{
+            return ResponseEntity.of(Optional.of(temp));
+        }
     }
 
     @GetMapping("/products/{id}")
@@ -34,6 +42,9 @@ public class TestController {
 //        System.out.println("sbh.gupta" + response);
 //    }
 
+
+
+
     @PostMapping("/product")
     public void addProduct(@RequestBody Product product) {
         System.out.println(product.toString());
@@ -42,9 +53,9 @@ public class TestController {
 
 
     @PutMapping("/product/{id}")
-    public Mono<ResponseEntity<String>>  updateProduct(@PathVariable long id, @RequestBody Product product) {
+    public ResponseEntity<Product>  updateProductBody(@PathVariable long id, @RequestBody Product product) {
         System.out.println(product.toString());
-        return testService.updateProduct(id,product);
+            return testService.updateProduct(id,product);
     }
 
     @DeleteMapping("/product/{id}")
