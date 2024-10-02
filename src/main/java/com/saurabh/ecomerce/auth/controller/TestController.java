@@ -1,5 +1,6 @@
 package com.saurabh.ecomerce.auth.controller;
 
+import com.saurabh.ecomerce.auth.exception.UserNotFoundException;
 import com.saurabh.ecomerce.auth.models.Product;
 import com.saurabh.ecomerce.auth.service.TestService;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +54,7 @@ public class TestController {
 
 
     @PutMapping("/product/{id}")
-    public ResponseEntity<Product>  updateProductBody(@PathVariable long id, @RequestBody Product product) {
+    public ResponseEntity<Product>  updateProductBody(@PathVariable long id, @RequestBody Product product) throws UserNotFoundException {
         System.out.println(product.toString());
             return testService.updateProduct(id,product);
     }

@@ -1,5 +1,6 @@
 package com.saurabh.ecomerce.auth.service;
 
+import com.saurabh.ecomerce.auth.exception.UserNotFoundException;
 import com.saurabh.ecomerce.auth.models.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
@@ -56,15 +57,15 @@ public class TestService {
     }
 
 
-    public ResponseEntity<Product> updateProduct(long id, Product product) {
+    public ResponseEntity<Product> updateProduct(long id, Product product) throws UserNotFoundException {
         System.out.println("Update product " + id  + " "+ product.toString());
         Product tempProduct = productRepository.getProductById(id);
         if(tempProduct!=null) {
             productRepository.save(tempProduct);
             return ResponseEntity.ok().body(product);
         }else {
-            System.out.println("Product does not exist");
-            return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION).build();
+
+            throw new UserNotFoundException("User Not Found with id " + id);
         }
 
     }
