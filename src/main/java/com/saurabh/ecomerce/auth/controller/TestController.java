@@ -13,27 +13,21 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequiredArgsConstructor
-public class TestController {
+    @RequiredArgsConstructor
+    public class TestController {
     private final TestService testService;
 
     @GetMapping("/products")
-    public ResponseEntity<List<Product>> getProducts() {
-
-        List temp=testService.fetchProducts();
-
-        if(temp.size()==0){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }else{
-            return ResponseEntity.of(Optional.of(temp));
-        }
+    public ResponseEntity<List<Product>> getProducts() throws UserNotFoundException{
+           // return ResponseEntity.of(Optional.of(testService.fetchProducts()));
+        return testService.fetchProducts();
     }
 
     @GetMapping("/products/{id}")
-    public ResponseEntity<Product>  getProductByID(@PathVariable long id) {
+    public ResponseEntity<Product>  getProductByID(@PathVariable long id) throws UserNotFoundException{
         System.out.println("ProductController.getProductById");
         System.out.println("id " + id);
-        return new ResponseEntity<>(this.testService.getProductByID(id), HttpStatus.OK);
+        return this.testService.getProductByID(id);
     }
 
 //    @PostMapping("/postrequest")
@@ -58,6 +52,7 @@ public class TestController {
         System.out.println(product.toString());
             return testService.updateProduct(id,product);
     }
+
 
     @DeleteMapping("/product/{id}")
     public Mono<ResponseEntity<String>> deleteProduct(@PathVariable long id, @RequestBody Product product) {

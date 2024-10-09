@@ -20,20 +20,32 @@ public class TestService {
     private final ProductRepository productRepository;
 
 
-    public List fetchProducts() {
-        return this.webClient.get()
-                .uri("/products?limit=5")
-                .retrieve()
-                .bodyToMono(List.class)
-                .block(); // Blocks for a response. Remove for asynchronous handling.
+    public ResponseEntity<List<Product>> fetchProducts() throws UserNotFoundException {
+//        return this.webClient.get()
+//                .uri("/products?limit=5")
+//                .retrieve()
+//                .bodyToMono(List.class)
+//                .block(); // Blocks for a response. Remove for asynchronous handling.L
+        List<Product> products;
+
+        try
+        {
+            products = productRepository.findAll();
+        }
+        catch(Exception ex)
+        {
+            throw new UserNotFoundException("No User Exist in Database" + ex.getMessage());
+        }
+
+        return ResponseEntity.ok().body(products);
     }
-    public Product getProductByID(long id) {
+    public ResponseEntity<Product> getProductByID(long id) throws UserNotFoundException {
         System.out.println("ProductService.getProductById");
         System.out.println("id = " + id);
        Product product = this.productRepository.getProductById(id);
         
         if(product != null){
-            return product;
+            return ResponseEntity.ok().body(product);
         }
         
         Product productFromApi = webClient
@@ -42,8 +54,9 @@ public class TestService {
                 .retrieve()
                 .bodyToMono(Product.class)
                 .block(); // Blocks for a response. Remove for asynchronous handling.
+        if(productFromApi == null)throw new UserNotFoundException("User Not found "+ id);
         this.saveProduct(productFromApi);
-        return productFromApi;
+        return ResponseEntity.ok().body(productFromApi);
     }
 
 
