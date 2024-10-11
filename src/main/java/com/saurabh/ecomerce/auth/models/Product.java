@@ -1,13 +1,15 @@
 package com.saurabh.ecomerce.auth.models;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.antlr.v4.runtime.misc.NotNull;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class Product extends  BaseModel {
 
 

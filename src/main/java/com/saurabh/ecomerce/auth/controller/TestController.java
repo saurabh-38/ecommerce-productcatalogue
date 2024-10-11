@@ -1,16 +1,16 @@
 package com.saurabh.ecomerce.auth.controller;
 
+import com.saurabh.ecomerce.auth.dto.ProductRequest;
 import com.saurabh.ecomerce.auth.exception.UserNotFoundException;
 import com.saurabh.ecomerce.auth.models.Product;
+import com.saurabh.ecomerce.auth.payload.DeleteResponse;
 import com.saurabh.ecomerce.auth.service.TestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
-
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
     @RequiredArgsConstructor
@@ -30,21 +30,13 @@ import java.util.Optional;
         return this.testService.getProductByID(id);
     }
 
-//    @PostMapping("/postrequest")
-//    public void postProducts(@RequestBody product req) {
-//        System.out.println("saurabh" + req);
-//        String response = testService.PostRequest(req);
-//        System.out.println("sbh.gupta" + response);
-//    }
-
-
-
-
-    @PostMapping("/product")
-    public void addProduct(@RequestBody Product product) {
-        System.out.println(product.toString());
-         testService.createProduct(product);
+    @PostMapping("/products")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void postProducts(@RequestBody ProductRequest req) {
+        System.out.println("saurabh" + req);
+         testService.createProduct(req);
     }
+
 
 
     @PutMapping("/product/{id}")
@@ -55,8 +47,8 @@ import java.util.Optional;
 
 
     @DeleteMapping("/product/{id}")
-    public Mono<ResponseEntity<String>> deleteProduct(@PathVariable long id, @RequestBody Product product) {
-        return testService.deleteProduct(id,product);
+    public ResponseEntity<DeleteResponse> deleteProduct(@PathVariable long id) throws UserNotFoundException {
+       return testService.deleteProduct(id);
     }
 
 

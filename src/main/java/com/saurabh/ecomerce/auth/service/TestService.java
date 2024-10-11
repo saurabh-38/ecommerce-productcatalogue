@@ -1,7 +1,9 @@
 package com.saurabh.ecomerce.auth.service;
 
+import com.saurabh.ecomerce.auth.dto.ProductRequest;
 import com.saurabh.ecomerce.auth.exception.UserNotFoundException;
 import com.saurabh.ecomerce.auth.models.Product;
+import com.saurabh.ecomerce.auth.payload.DeleteResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -9,11 +11,12 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import com.saurabh.ecomerce.auth.repository.ProductRepository;
-
+import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TestService {
 
     private final WebClient webClient ;
@@ -21,20 +24,17 @@ public class TestService {
 
 
     public ResponseEntity<List<Product>> fetchProducts() throws UserNotFoundException {
-//        return this.webClient.get()
-//                .uri("/products?limit=5")
-//                .retrieve()
-//                .bodyToMono(List.class)
-//                .block(); // Blocks for a response. Remove for asynchronous handling.L
+
         List<Product> products;
 
         try
         {
             products = productRepository.findAll();
+            log.info("Get All Product is SuccesFulluy");
         }
         catch(Exception ex)
         {
-            throw new UserNotFoundException("No User Exist in Database" + ex.getMessage());
+            throw new UserNotFoundException("No User Exist in Database " + ex.getMessage());
         }
 
         return ResponseEntity.ok().body(products);
@@ -96,18 +96,18 @@ public class TestService {
 
 
 
-    public Mono<ResponseEntity<String>> deleteProduct(long id, Product product) {
+    public ResponseEntity<DeleteResponse> deleteProduct(long id) throws UserNotFoundException{
 
-        String apiUrl = "https://fakestoreapi.com/products/" + id;  // Update URL with product ID
-
-        return webClient
-                .delete()
-                .uri(apiUrl)
-                .retrieve()
-                .bodyToMono(String.class)
-                .map(response -> ResponseEntity.ok(response))
-                .onErrorResume(e -> Mono.just(ResponseEntity.status(500).body("Error occurred: " + e.getMessage())));
-
+      if(checkProductIsExist(id)){
+          try {
+              productRepository.delete(productRepository.getProductById(id));
+          return ResponseEntity.ok().body(new DeleteResponse(Boolean.TRUE,"Succfully Delete ",HttpStatus.ACCEPTED));
+          } catch(Exception ex){
+            throw new UserNotFoundException("Failed to Delete the product" + id);
+          }
+      }else {
+          throw new UserNotFoundException("Not able to Delete User" + id);
+      }
     }
 
     public void saveProduct(Product product) {
@@ -124,6 +124,28 @@ public class TestService {
 //            System.out.println("Product does not exist");
 //        }
 //    }
+
+    public void createProduct(ProductRequest productRequest) {
+        System.out.println("Start saving project");
+        Product product = Product.builder()
+                .title(productRequest.getTitle())
+                .description(productRequest.getDescription())
+                .price(productRequest.getPrice())
+                .image(productRequest.getImage())
+                .category(productRequest.getCategory())
+                .build();
+
+            saveProduct(product);
+            System.out.println("sava project");
+
+    }
+    public boolean checkProductIsExist(long id){
+        Product tempProduct = productRepository.getProductById(id);
+        if(tempProduct == null){
+            return false;
+        }
+        return true;
+    }
 
 
 }

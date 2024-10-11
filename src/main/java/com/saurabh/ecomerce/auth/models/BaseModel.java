@@ -13,6 +13,7 @@ import java.util.Date;
 public class BaseModel {
 
     @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
     public   Long id;
     private Date createdAt;
     private Date updatedAt;
